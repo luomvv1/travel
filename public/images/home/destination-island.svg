@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 420" role="img" aria-labelledby="title desc">
+  <title id="title">Southern Soft Escape</title>
+  <desc id="desc">Illustration of island beach with palms and sunset sea.</desc>
+  <defs>
+    <linearGradient id="sunset" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffd5a2" />
+      <stop offset="52%" stop-color="#ffc38a" />
+      <stop offset="100%" stop-color="#83cad0" />
+    </linearGradient>
+  </defs>
+  <rect width="700" height="420" fill="url(#sunset)" />
+  <circle cx="110" cy="112" r="50" fill="#fff1c7" />
+  <rect y="218" width="700" height="202" fill="#52aeb5" />
+  <path d="M0 236 C92 220 164 248 238 232 C320 216 400 252 486 234 C550 220 628 232 700 224" stroke="#d5f6f8" stroke-width="5" fill="none" opacity="0.58" />
+  <path d="M50 270 C146 228 236 298 338 264 C426 234 540 294 650 260 L700 420 L0 420 Z" fill="#f0d08f" />
+
+  <path d="M192 248 C198 210 202 188 210 152" stroke="#61412e" stroke-width="9" stroke-linecap="round" />
+  <path d="M210 154 C236 134 254 130 278 128" stroke="#497e52" stroke-width="8" stroke-linecap="round" />
+  <path d="M210 154 C236 146 260 152 284 166" stroke="#548b5e" stroke-width="8" stroke-linecap="round" />
+  <path d="M210 154 C228 168 236 188 240 214" stroke="#4d875a" stroke-width="8" stroke-linecap="round" />
+
+  <path d="M512 242 C516 212 520 190 526 162" stroke="#664731" stroke-width="8" stroke-linecap="round" />
+  <path d="M526 162 C550 144 566 140 588 140" stroke="#4a7f53" stroke-width="7" stroke-linecap="round" />
+  <path d="M526 162 C550 156 572 164 592 176" stroke="#5b915f" stroke-width="7" stroke-linecap="round" />
+  <path d="M526 162 C542 174 552 192 558 214" stroke="#4d875a" stroke-width="7" stroke-linecap="round" />
+
+  <g transform="translate(352 286)">
+    <path d="M0 18 L76 18 L60 40 L16 40 Z" fill="#2a5b62" />
+    <path d="M36 0 L54 18 L18 18 Z" fill="#fff4dd" />
+    <rect x="35" y="0" width="2" height="20" fill="#2b5055" />
+  </g>
+</svg>

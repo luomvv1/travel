@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 420" role="img" aria-labelledby="title desc">
+  <title id="title">Central Coast</title>
+  <desc id="desc">Illustration of coast, lighthouse and sailboats.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffe8ba" />
+      <stop offset="100%" stop-color="#a5d8e7" />
+    </linearGradient>
+  </defs>
+  <rect width="700" height="420" fill="url(#sky)" />
+  <rect y="220" width="700" height="200" fill="#5db4c2" />
+  <path d="M0 242 C90 224 160 264 236 244 C320 222 400 264 480 246 C554 232 622 244 700 238" stroke="#d9f7ff" stroke-width="5" fill="none" opacity="0.6" />
+  <path d="M0 200 C130 176 210 220 330 184 C430 154 548 200 700 156 L700 420 L0 420 Z" fill="#3f7e6c" />
+  <rect x="110" y="128" width="22" height="86" fill="#f8f3ea" />
+  <polygon points="121,90 145,132 97,132" fill="#ef7a4b" />
+  <rect x="114" y="148" width="14" height="14" fill="#ef7a4b" />
+  <g transform="translate(430 266)">
+    <path d="M0 28 L92 28 L70 52 L22 52 Z" fill="#2f5f66" />
+    <path d="M44 2 L66 28 L22 28 Z" fill="#fff8e5" />
+    <rect x="43" y="2" width="2" height="28" fill="#315359" />
+  </g>
+  <g transform="translate(518 292)">
+    <path d="M0 21 L64 21 L50 38 L14 38 Z" fill="#2d575f" />
+    <path d="M31 2 L47 21 L15 21 Z" fill="#fff1d8" />
+    <rect x="30" y="2" width="2" height="22" fill="#315359" />
+  </g>
+</svg>

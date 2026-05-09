@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">Sunrise Bay Journey</title>
+  <desc id="desc">Illustration of a sunrise bay with mountains, village and boat.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffe7b7" />
+      <stop offset="45%" stop-color="#ffd3a0" />
+      <stop offset="100%" stop-color="#9fd8db" />
+    </linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6ec6c3" />
+      <stop offset="100%" stop-color="#1f6d74" />
+    </linearGradient>
+    <linearGradient id="hill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#5e7e66" />
+      <stop offset="100%" stop-color="#31513f" />
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="900" fill="url(#sky)" />
+  <circle cx="920" cy="160" r="90" fill="#fff1c7" opacity="0.9" />
+
+  <path d="M0 430 C170 310 280 370 430 300 C540 250 690 320 790 280 C910 230 1040 310 1200 260 L1200 900 L0 900 Z" fill="#6f8d78" opacity="0.85" />
+  <path d="M0 500 C210 390 340 450 480 380 C640 300 820 390 940 350 C1060 310 1130 340 1200 320 L1200 900 L0 900 Z" fill="url(#hill)" />
+
+  <rect x="0" y="560" width="1200" height="340" fill="url(#water)" />
+  <path d="M0 635 C110 615 220 655 330 635 C440 615 550 655 660 635 C770 615 880 655 990 635 C1070 621 1140 624 1200 632" stroke="#d8f9ff" stroke-width="6" fill="none" opacity="0.5" />
+  <path d="M0 695 C95 675 230 735 355 695 C470 660 620 733 760 700 C860 677 980 722 1200 688" stroke="#d8f9ff" stroke-width="5" fill="none" opacity="0.35" />
+
+  <g transform="translate(175 585)">
+    <rect x="0" y="0" width="260" height="132" rx="24" fill="#f7f0df" opacity="0.95" />
+    <rect x="18" y="46" width="48" height="60" rx="8" fill="#e08a52" />
+    <rect x="74" y="28" width="42" height="78" rx="8" fill="#dd7547" />
+    <rect x="124" y="55" width="52" height="51" rx="8" fill="#f7b267" />
+    <rect x="184" y="40" width="52" height="66" rx="8" fill="#d96e46" />
+    <path d="M8 116 L250 116" stroke="#a86f42" stroke-width="8" stroke-linecap="round" />
+  </g>
+
+  <g transform="translate(760 650)">
+    <path d="M0 52 L175 52 L132 92 L42 92 Z" fill="#6d4a2a" />
+    <path d="M58 10 L120 52 L2 52 Z" fill="#fff5dc" />
+    <rect x="81" y="0" width="4" height="60" fill="#4b3420" />
+  </g>
+
+  <g transform="translate(910 725)">
+    <ellipse cx="75" cy="30" rx="74" ry="16" fill="#204850" opacity="0.35" />
+    <path d="M12 32 L140 32 L108 62 L40 62 Z" fill="#244f56" />
+    <path d="M74 2 L102 32 L46 32 Z" fill="#fff3df" />
+    <rect x="72" y="2" width="3" height="42" fill="#254148" />
+  </g>
+</svg>

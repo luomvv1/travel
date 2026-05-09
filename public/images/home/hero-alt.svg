@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 420" role="img" aria-labelledby="title desc">
+  <title id="title">Mountain Rail Escape</title>
+  <desc id="desc">Illustration of a mountain valley with a train passing through.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#dff4ff" />
+      <stop offset="100%" stop-color="#b2d6b8" />
+    </linearGradient>
+  </defs>
+
+  <rect width="600" height="420" fill="url(#bg)" />
+  <circle cx="470" cy="82" r="46" fill="#fff8cc" />
+  <path d="M0 220 L130 128 L240 210 L335 104 L450 220 L600 130 L600 420 L0 420 Z" fill="#5d8667" />
+  <path d="M0 272 L110 196 L205 246 L300 182 L392 262 L504 210 L600 250 L600 420 L0 420 Z" fill="#416f51" />
+  <rect x="0" y="292" width="600" height="20" fill="#debb8d" />
+  <rect x="0" y="312" width="600" height="108" fill="#7db39b" />
+
+  <g transform="translate(80 246)">
+    <rect x="0" y="24" width="312" height="42" rx="10" fill="#f8f2e8" />
+    <rect x="20" y="12" width="58" height="34" rx="8" fill="#ef824e" />
+    <rect x="90" y="12" width="58" height="34" rx="8" fill="#ef824e" />
+    <rect x="160" y="12" width="58" height="34" rx="8" fill="#ef824e" />
+    <rect x="230" y="12" width="62" height="34" rx="8" fill="#ef824e" />
+    <circle cx="42" cy="70" r="12" fill="#3f3f3f" />
+    <circle cx="262" cy="70" r="12" fill="#3f3f3f" />
+  </g>
+</svg>
