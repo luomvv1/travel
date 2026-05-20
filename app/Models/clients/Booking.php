@@ -30,7 +30,7 @@ class Booking extends Model
         return DB::table($this->table)
             ->where('tourid', $tourId)
             ->where('ndid', $userId)
-            ->where('trangthai', 'hoan_thanh')
+            ->whereIn('trangthai', ['da_xac_nhan', 'da_thanh_toan', 'hoan_thanh'])
             ->exists(); 
     }
 }

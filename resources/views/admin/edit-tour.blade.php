@@ -1,281 +1,680 @@
 @include('admin.blocks.header')
+
+@php
+    $tour = $tourDetails->tour;
+    $tourDays = max(1, (int) old('songay', request('days', $tour->songay)));
+    $existingItinerary = collect($tourDetails->itinerary ?? []);
+    $images = collect($tourDetails->images ?? []);
+    $schedules = collect($tourDetails->schedules ?? []);
+    $money = fn ($value) => number_format((float) ($value ?? 0), 0, ',', '.') . ' VNĐ';
+    $date = fn ($value) => $value ? \Carbon\Carbon::parse($value)->format('d/m/Y') : 'Chưa có';
+    $regionLabels = ['b' => 'Miền Bắc', 't' => 'Miền Trung', 'n' => 'Miền Nam'];
+    $tourStatusLabels = ['hoat_dong' => 'Hoạt động', 'khong_hoat_dong' => 'Không hoạt động'];
+    $scheduleStatusLabels = [
+        'con_cho' => ['Còn chỗ', 'status-success'],
+        'het_cho' => ['Hết chỗ', 'status-danger'],
+        'sap_dien_ra' => ['Sắp diễn ra', 'status-warning'],
+        'hoan_thanh' => ['Hoàn thành', 'status-info'],
+        'huy' => ['Đã hủy', 'status-muted'],
+    ];
+    $coverImage = $images->first();
+@endphp
+
+<style>
+    .edit-tour-page {
+        color: #253242;
+    }
+
+    .edit-tour-hero,
+    .edit-tour-panel {
+        background: #ffffff;
+        border: 1px solid #e6edf3;
+        border-radius: 8px;
+        margin-bottom: 18px;
+    }
+
+    .edit-tour-hero {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        padding: 20px 24px;
+    }
+
+    .edit-tour-hero h1 {
+        color: #1f2d3d;
+        font-size: 25px;
+        font-weight: 700;
+        letter-spacing: 0;
+        margin: 0 0 6px;
+    }
+
+    .edit-tour-hero p {
+        color: #6b7d90;
+        font-size: 14px;
+        margin: 0;
+    }
+
+    .edit-tour-actions {
+        display: flex;
+        gap: 8px;
+        white-space: nowrap;
+    }
+
+    .edit-tour-panel {
+        padding: 18px;
+    }
+
+    .panel-heading-clean {
+        align-items: center;
+        border-bottom: 1px solid #edf2f6;
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+    }
+
+    .panel-heading-clean h2 {
+        color: #1f2d3d;
+        font-size: 17px;
+        font-weight: 700;
+        letter-spacing: 0;
+        margin: 0;
+    }
+
+    .panel-heading-clean small {
+        color: #8a98a8;
+        font-size: 12px;
+    }
+
+    .tour-cover {
+        background: #f3f6f9;
+        border-radius: 8px;
+        height: 220px;
+        margin-bottom: 14px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .tour-cover img {
+        height: 100%;
+        object-fit: cover;
+        width: 100%;
+    }
+
+    .tour-cover-empty {
+        align-items: center;
+        color: #8a98a8;
+        display: flex;
+        height: 100%;
+        justify-content: center;
+    }
+
+    .summary-list {
+        margin: 0;
+        padding: 0;
+    }
+
+    .summary-list li {
+        align-items: center;
+        border-bottom: 1px solid #edf2f6;
+        display: flex;
+        justify-content: space-between;
+        list-style: none;
+        padding: 10px 0;
+    }
+
+    .summary-list li:last-child {
+        border-bottom: 0;
+    }
+
+    .summary-list span {
+        color: #7c8b9d;
+    }
+
+    .summary-list strong {
+        color: #1f2d3d;
+        text-align: right;
+    }
+
+    .form-section-title {
+        color: #1f2d3d;
+        font-size: 15px;
+        font-weight: 700;
+        margin: 18px 0 12px;
+    }
+
+    .form-section-title:first-child {
+        margin-top: 0;
+    }
+
+    .edit-tour-page label {
+        color: #425166;
+        font-weight: 600;
+    }
+
+    .edit-tour-page .form-control {
+        border-color: #dbe5ed;
+        box-shadow: none;
+    }
+
+    .edit-tour-page .form-control:focus {
+        border-color: #1f7a8c;
+        box-shadow: 0 0 0 2px rgba(31, 122, 140, 0.12);
+    }
+
+    .day-tools {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .day-tools .form-inline {
+        align-items: center;
+        display: flex;
+        gap: 8px;
+        margin: 0;
+    }
+
+    .day-item {
+        border: 1px solid #e6edf3;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        overflow: hidden;
+    }
+
+    .day-title {
+        background: #f7fafc;
+        border-bottom: 1px solid #e6edf3;
+        color: #1f2d3d;
+        font-weight: 700;
+        padding: 12px 14px;
+    }
+
+    .day-body {
+        padding: 14px;
+    }
+
+    .image-grid {
+        display: grid;
+        gap: 14px;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    }
+
+    .image-item {
+        border: 1px solid #e6edf3;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .image-thumb {
+        background: #f3f6f9;
+        height: 135px;
+    }
+
+    .image-thumb img {
+        height: 100%;
+        object-fit: cover;
+        width: 100%;
+    }
+
+    .image-info {
+        padding: 12px;
+    }
+
+    .image-info strong {
+        color: #1f2d3d;
+        display: block;
+        margin-bottom: 4px;
+        overflow-wrap: anywhere;
+    }
+
+    .image-info p {
+        color: #7c8b9d;
+        font-size: 12px;
+        min-height: 34px;
+        margin: 0 0 10px;
+    }
+
+    .status-pill {
+        border-radius: 999px;
+        display: inline-block;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 5px 10px;
+        white-space: nowrap;
+    }
+
+    .status-success {
+        background: #e8f6ee;
+        color: #20764a;
+    }
+
+    .status-danger {
+        background: #ffecec;
+        color: #b42318;
+    }
+
+    .status-warning {
+        background: #fff6dd;
+        color: #9a6500;
+    }
+
+    .status-info {
+        background: #e8f2ff;
+        color: #1b64b0;
+    }
+
+    .status-muted {
+        background: #eef2f6;
+        color: #5b6778;
+    }
+
+    .responsive-table {
+        overflow-x: auto;
+    }
+
+    .clean-table {
+        margin-bottom: 0;
+    }
+
+    .clean-table > thead > tr > th {
+        border-bottom: 1px solid #e8eef3;
+        color: #6b7d90;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .clean-table > tbody > tr > td {
+        border-top: 1px solid #eef2f6;
+        vertical-align: middle;
+    }
+
+    .empty-box {
+        background: #f7fafc;
+        border: 1px dashed #cbd8e3;
+        border-radius: 8px;
+        color: #7c8b9d;
+        padding: 18px;
+        text-align: center;
+    }
+
+    @media (max-width: 767px) {
+        .edit-tour-hero {
+            align-items: flex-start;
+            display: block;
+        }
+
+        .edit-tour-actions {
+            margin-top: 14px;
+        }
+
+        .day-tools .form-inline {
+            align-items: stretch;
+            display: block;
+            width: 100%;
+        }
+
+        .day-tools .form-inline .form-control,
+        .day-tools .form-inline .btn {
+            margin-top: 8px;
+            width: 100%;
+        }
+    }
+</style>
+
 <div class="container body">
     <div class="main_container">
         @include('admin.blocks.sidebar')
 
-        <div class="right_col" role="main">
-            <div class="page-title">
-                <div class="title_left">
-                    <h3>Chỉnh sửa Tour</h3>
+        <div class="right_col edit-tour-page" role="main">
+            <div class="edit-tour-hero">
+                <div>
+                    <h1>Chỉnh sửa tour</h1>
+                    <p>{{ $tour->tentour }}</p>
+                </div>
+                <div class="edit-tour-actions">
+                    <a href="{{ route('admin.tours') }}" class="btn btn-default">
+                        <i class="fa fa-arrow-left"></i> Danh sách
+                    </a>
+                    <button class="btn btn-primary" type="submit" form="tourEditForm">
+                        <i class="fa fa-save"></i> Lưu thay đổi
+                    </button>
                 </div>
             </div>
 
-            <div class="clearfix"></div>
+            @if(session('success'))
+                <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
+            @if(session('error'))
+                <div class="alert alert-danger">{{ session('error') }}</div>
+            @endif
 
             <div class="row">
-                <div class="col-md-12 col-sm-12 ">
-                    <div class="x_panel">
-                        <div class="x_title">
-                            <h2>Sửa Tour: {{ $tourDetails->tour->tentour }}</h2>
-                            <div class="clearfix"></div>
+                <div class="col-md-4 col-sm-12">
+                    <div class="edit-tour-panel">
+                        <div class="tour-cover">
+                            @if($coverImage)
+                                <img src="{{ asset('admin/assets/images/gallery-tours/' . $coverImage->urlanh) }}" alt="{{ $tour->tentour }}">
+                            @else
+                                <div class="tour-cover-empty">
+                                    <i class="fa fa-image"></i>&nbsp; Chưa có ảnh
+                                </div>
+                            @endif
                         </div>
-                        <div class="x_content">
-                            @if(session('success'))
-                                <div class="alert alert-success">{{ session('success') }}</div>
-                            @endif
-                            @if(session('error'))
-                                <div class="alert alert-danger">{{ session('error') }}</div>
-                            @endif
+                        <ul class="summary-list">
+                            <li>
+                                <span>Mã tour</span>
+                                <strong>#{{ $tour->tourid }}</strong>
+                            </li>
+                            <li>
+                                <span>Khu vực</span>
+                                <strong>{{ $regionLabels[$tour->khuvuc] ?? $tour->khuvuc ?? 'Chưa chọn' }}</strong>
+                            </li>
+                            <li>
+                                <span>Thời lượng</span>
+                                <strong>{{ $tourDays }} ngày</strong>
+                            </li>
+                            <li>
+                                <span>Sức chứa</span>
+                                <strong>{{ number_format($tour->songuoitoida ?? 0, 0, ',', '.') }} khách</strong>
+                            </li>
+                            <li>
+                                <span>Giá người lớn</span>
+                                <strong>{{ $money($tour->gianguoilon) }}</strong>
+                            </li>
+                            <li>
+                                <span>Trạng thái</span>
+                                <strong>{{ $tourStatusLabels[$tour->trangthai] ?? $tour->trangthai }}</strong>
+                            </li>
+                        </ul>
+                    </div>
 
-                            @php
-                                $tourDays = max(1, (int) old('songay', request('days', $tourDetails->tour->songay)));
-                                $existingItinerary = collect($tourDetails->itinerary ?? []);
-                            @endphp
+                    <div class="edit-tour-panel">
+                        <div class="panel-heading-clean">
+                            <h2>Điều chỉnh số ngày</h2>
+                        </div>
+                        <div class="day-tools">
+                            <form method="GET" action="{{ route('admin.tour-edit-page', ['tourId' => $tour->tourid]) }}" class="form-inline">
+                                <input type="number" name="days" min="1" value="{{ $tourDays }}" class="form-control" style="width: 110px;">
+                                <button class="btn btn-info" type="submit">
+                                    <i class="fa fa-refresh"></i> Cập nhật
+                                </button>
+                            </form>
+                            <a class="btn btn-success" href="{{ route('admin.tour-edit-page', ['tourId' => $tour->tourid, 'days' => $tourDays + 1]) }}">
+                                <i class="fa fa-plus"></i> Thêm 1 ngày
+                            </a>
+                        </div>
+                        <p class="text-muted" style="margin: 12px 0 0;">
+                            Cập nhật số ngày để hiển thị đúng số ô lịch trình cần nhập.
+                        </p>
+                    </div>
+                </div>
 
-                            <div class="mb-3 d-flex flex-wrap gap-2 align-items-end">
-                                <form method="GET" action="{{ route('admin.tour-edit-page', ['tourId' => $tourDetails->tour->tourid]) }}" class="form-inline mr-2">
-                                    <div class="form-group mr-2">
-                                        <label class="mr-2">Số ngày</label>
-                                        <input type="number" name="days" min="1" value="{{ $tourDays }}" class="form-control">
-                                    </div>
-                                    <button class="btn btn-info" type="submit">Cập nhật số ngày</button>
-                                </form>
+                <div class="col-md-8 col-sm-12">
+                    <form id="tourEditForm" method="POST" action="{{ route('admin.tour-update', ['tourId' => $tour->tourid]) }}" enctype="multipart/form-data">
+                        @csrf
+                        <input type="hidden" name="tourId" value="{{ $tour->tourid }}">
 
-                                <a class="btn btn-outline-success" href="{{ route('admin.tour-edit-page', ['tourId' => $tourDetails->tour->tourid, 'days' => $tourDays + 1]) }}">
-                                    Thêm 1 ngày
-                                </a>
+                        <div class="edit-tour-panel">
+                            <div class="panel-heading-clean">
+                                <h2>Thông tin tour</h2>
+                                <small>Cập nhật thông tin hiển thị cho khách hàng</small>
                             </div>
 
-                            <form method="POST" action="{{ route('admin.tour-update', ['tourId' => $tourDetails->tour->tourid]) }}" enctype="multipart/form-data">
-                                @csrf
-                                <input type="hidden" name="tourId" value="{{ $tourDetails->tour->tourid }}">
+                            <div class="form-section-title">Thông tin cơ bản</div>
+                            <div class="form-group">
+                                <label>Tên tour</label>
+                                <input class="form-control" name="name" value="{{ old('name', $tour->tentour) }}" required>
+                            </div>
 
-                                <div class="form-group">
-                                    <label>Tên</label>
-                                    <input class="form-control" name="name" value="{{ $tourDetails->tour->tentour }}" required>
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label>Điểm khởi hành</label>
+                                    <input class="form-control" name="departure" value="{{ old('departure', $tour->diemkhoihanh) }}" placeholder="Ví dụ: TP. Hồ Chí Minh">
                                 </div>
-
-                                <div class="form-group">
+                                <div class="form-group col-md-6">
                                     <label>Điểm đến</label>
-                                    <input class="form-control" name="destination" value="{{ $tourDetails->tour->diadiemden }}" required>
+                                    <input class="form-control" name="destination" value="{{ old('destination', $tour->diadiemden) }}" required>
                                 </div>
+                            </div>
 
-                                <div class="form-group">
+                            <div class="row">
+                                <div class="form-group col-md-4">
                                     <label>Khu vực</label>
-                                    <select class="form-control" name="domain">
+                                    <select class="form-control" name="domain" required>
                                         <option value="">Chọn khu vực</option>
-                                        <option value="b" {{ $tourDetails->tour->khuvuc == 'b' ? 'selected' : '' }}>Miền Bắc</option>
-                                        <option value="t" {{ $tourDetails->tour->khuvuc == 't' ? 'selected' : '' }}>Miền Trung</option>
-                                        <option value="n" {{ $tourDetails->tour->khuvuc == 'n' ? 'selected' : '' }}>Miền Nam</option>
+                                        <option value="b" {{ old('domain', $tour->khuvuc) == 'b' ? 'selected' : '' }}>Miền Bắc</option>
+                                        <option value="t" {{ old('domain', $tour->khuvuc) == 't' ? 'selected' : '' }}>Miền Trung</option>
+                                        <option value="n" {{ old('domain', $tour->khuvuc) == 'n' ? 'selected' : '' }}>Miền Nam</option>
                                     </select>
                                 </div>
-
-                                <div class="form-row">
-                                    <div class="form-group col-md-4">
-                                        <label>Số lượng</label>
-                                        <input class="form-control" type="number" name="number" value="{{ $tourDetails->tour->songuoitoida }}" required>
-                                    </div>
-                                    <div class="form-group col-md-4">
-                                        <label>Giá người lớn</label>
-                                        <input class="form-control" type="number" name="price_adult" value="{{ $tourDetails->tour->gianguoilon }}" required>
-                                    </div>
-                                    <div class="form-group col-md-4">
-                                        <label>Giá trẻ em</label>
-                                        <input class="form-control" type="number" name="price_child" value="{{ $tourDetails->tour->giatreem }}" required>
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Mô tả</label>
-                                    <textarea class="form-control" name="description" rows="6">{{ $tourDetails->tour->mota }}</textarea>
-                                </div>
-
-                                <div class="form-group">
+                                <div class="form-group col-md-4">
                                     <label>Số ngày</label>
-                                    <input class="form-control" type="number" name="songay" min="1" value="{{ $tourDays }}" required>
-                                    <small class="text-muted">Đổi số ngày rồi bấm "Cập nhật số ngày" ở trên để nạp thêm ô lịch trình.</small>
+                                    <input class="form-control" type="number" name="songay" min="1" value="{{ old('songay', $tourDays) }}" required>
                                 </div>
-
-                                <hr>
-                                <h4>Lịch trình theo số ngày</h4>
-                                <p class="text-muted">Tour này có {{ $tourDays }} ngày, bên dưới là nội dung lịch trình tương ứng cho từng ngày.</p>
-
-                                <div class="row">
-                                    @for($day = 1; $day <= $tourDays; $day++)
-                                        @php
-                                            $daySchedule = $existingItinerary[$day - 1] ?? null;
-                                        @endphp
-                                        <div class="col-md-12 mb-3">
-                                            <div class="card">
-                                                <div class="card-header">
-                                                    <strong>Ngày {{ $day }}</strong>
-                                                </div>
-                                                <div class="card-body">
-                                                    <div class="form-group">
-                                                        <label>Tiêu đề</label>
-                                                        <input
-                                                            type="text"
-                                                            name="timeline[{{ $day }}][title]"
-                                                            class="form-control"
-                                                            value="{{ old('timeline.' . $day . '.title', $daySchedule->tieude ?? 'Ngày ' . $day) }}"
-                                                            placeholder="Ví dụ: Ngày {{ $day }} - Khởi hành"
-                                                        >
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <label>Nội dung lịch trình</label>
-                                                        <textarea
-                                                            name="timeline[{{ $day }}][itinerary]"
-                                                            class="form-control"
-                                                            rows="4"
-                                                            placeholder="Mô tả lịch trình cho ngày {{ $day }}"
-                                                        >{{ old('timeline.' . $day . '.itinerary', $daySchedule->noidung ?? '') }}</textarea>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endfor
-                                </div>
-
-                                <div class="mt-3">
-                                    <button class="btn btn-primary" type="submit">Lưu thay đổi</button>
-                                    <a href="{{ route('admin.tours') }}" class="btn btn-secondary">Hủy</a>
-                                </div>
-
-                            </form>
-
-                            <hr>
-                            <h4>Hình ảnh</h4>
-
-                            <div class="mb-3">
-                                @if($tourDetails->images && count($tourDetails->images) > 0)
-                                    <table class="table table-bordered">
-                                        <thead>
-                                            <tr><th>Ảnh</th><th>Tên</th><th>Mô tả</th><th>Hành động</th></tr>
-                                        </thead>
-                                        <tbody>
-                                        @foreach($tourDetails->images as $img)
-                                            <tr>
-                                                <td><img src="{{ asset('admin/assets/images/gallery-tours/' . $img->urlanh) }}" style="height:60px"></td>
-                                                <td>{{ $img->tenanh }}</td>
-                                                <td>{{ $img->motaanh }}</td>
-                                                <td>
-                                                    <form method="POST" action="{{ route('admin.tour-delete-image', ['tourId' => $tourDetails->tour->tourid, 'hinhId' => $img->hinhid]) }}">
-                                                        @csrf
-                                                        <button class="btn btn-sm btn-danger" type="submit">Xóa</button>
-                                                    </form>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                        </tbody>
-                                    </table>
-                                @else
-                                    <p>Chưa có ảnh nào.</p>
-                                @endif
-
-                                <div class="form-group">
-                                    <label>Thêm ảnh mới</label>
-                                    <form method="POST" action="{{ route('admin.tour-add-image', ['tourId' => $tourDetails->tour->tourid]) }}" enctype="multipart/form-data">
-                                        @csrf
-                                        <input type="file" name="image" class="form-control-file" required>
-                                        <input type="text" name="description" class="form-control mt-2" placeholder="Mô tả ảnh (tùy chọn)">
-                                        <button class="btn btn-primary mt-2" type="submit">Tải lên</button>
-                                    </form>
+                                <div class="form-group col-md-4">
+                                    <label>Số khách tối đa</label>
+                                    <input class="form-control" type="number" name="number" min="1" value="{{ old('number', $tour->songuoitoida) }}" required>
                                 </div>
                             </div>
 
-                            <hr>
-                            <h4>Lịch khởi hành</h4>
+                            <div class="form-section-title">Giá tour</div>
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label>Giá người lớn</label>
+                                    <input class="form-control" type="number" name="price_adult" min="0" value="{{ old('price_adult', $tour->gianguoilon) }}" required>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>Giá trẻ em</label>
+                                    <input class="form-control" type="number" name="price_child" min="0" value="{{ old('price_child', $tour->giatreem) }}" required>
+                                </div>
+                            </div>
 
-                            <div class="mb-3">
-                                @if($tourDetails->schedules && count($tourDetails->schedules) > 0)
-                                    <table class="table table-bordered">
-                                        <thead>
-                                            <tr><th>Ngày bắt đầu</th><th>Ngày kết thúc</th><th>Số chỗ còn</th><th>Trạng thái</th><th>Hành động</th></tr>
-                                        </thead>
-                                        <tbody>
-                                        @foreach($tourDetails->schedules as $s)
-                                            <tr>
-                                                <td>{{ $s->ngaybatdau }}</td>
-                                                <td>{{ $s->ngayketthuc }}</td>
-                                                <td>{{ $s->sochocon }}</td>
-                                                <td>
-                                                    @php
-                                                        $statusLabels = [
-                                                            'con_cho' => 'Còn chỗ',
-                                                            'het_cho' => 'Hết chỗ',
-                                                            'sap_dien_ra' => 'Sắp diễn ra',
-                                                            'hoan_thanh' => 'Hoàn thành',
-                                                            'huy' => 'Đã hủy',
-                                                        ];
-                                                    @endphp
-                                                    <div class="mb-2"><strong>{{ $statusLabels[$s->trangthai] ?? $s->trangthai }}</strong></div>
-                                                    <form method="POST" action="{{ route('admin.tour-update-schedule-status', ['tourId' => $tourDetails->tour->tourid, 'lichId' => $s->lichid]) }}" class="form-inline">
-                                                        @csrf
-                                                        <select name="trangthai" class="form-control form-control-sm mr-2">
-                                                            <option value="con_cho" {{ $s->trangthai === 'con_cho' ? 'selected' : '' }}>Còn chỗ</option>
-                                                            <option value="het_cho" {{ $s->trangthai === 'het_cho' ? 'selected' : '' }}>Hết chỗ</option>
-                                                            <option value="sap_dien_ra" {{ $s->trangthai === 'sap_dien_ra' ? 'selected' : '' }}>Sắp diễn ra</option>
-                                                            <option value="hoan_thanh" {{ $s->trangthai === 'hoan_thanh' ? 'selected' : '' }}>Hoàn thành</option>
-                                                            <option value="huy" {{ $s->trangthai === 'huy' ? 'selected' : '' }}>Đã hủy</option>
-                                                        </select>
-                                                        <button class="btn btn-sm btn-primary" type="submit">Cập nhật</button>
-                                                    </form>
-                                                </td>
-                                                <td class="pt-3">
-                                                    <form method="POST" action="{{ route('admin.tour-delete-schedule', ['tourId' => $tourDetails->tour->tourid, 'lichId' => $s->lichid]) }}">
-                                                        @csrf
-                                                        <button class="btn btn-sm btn-danger" type="submit">Xóa</button>
-                                                    </form>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                        </tbody>
-                                    </table>
-                                @else
-                                    <p>Chưa có lịch khởi hành.</p>
-                                @endif
+                            <div class="form-section-title">Mô tả</div>
+                            <div class="form-group">
+                                <textarea class="form-control" name="description" rows="7" placeholder="Mô tả điểm nổi bật, trải nghiệm và đối tượng phù hợp của tour">{{ old('description', $tour->mota) }}</textarea>
+                            </div>
+                        </div>
 
-                                <div class="card p-3">
-                                    <form method="POST" action="{{ route('admin.tour-add-schedule', ['tourId' => $tourDetails->tour->tourid]) }}">
-                                        @csrf
-                                        <div class="form-row">
-                                            <div class="form-group col-md-4">
-                                                <label>Ngày bắt đầu</label>
-                                                <input type="date" name="ngaybatdau" class="form-control" required>
-                                            </div>
-                                            <div class="form-group col-md-4">
-                                                <label>Ngày kết thúc</label>
-                                                <input type="date" name="ngayketthuc" class="form-control" required>
-                                            </div>
-                                            <div class="form-group col-md-4">
-                                                <label>Số chỗ còn</label>
-                                                <input type="number" name="sochocon" class="form-control" value="{{ $tourDetails->tour->songuoitoida }}" required>
-                                            </div>
+                        <div class="edit-tour-panel">
+                            <div class="panel-heading-clean">
+                                <h2>Lịch trình theo ngày</h2>
+                                <small>{{ $tourDays }} ngày</small>
+                            </div>
+
+                            @for($day = 1; $day <= $tourDays; $day++)
+                                @php
+                                    $daySchedule = $existingItinerary[$day - 1] ?? null;
+                                @endphp
+                                <div class="day-item">
+                                    <div class="day-title">Ngày {{ $day }}</div>
+                                    <div class="day-body">
+                                        <div class="form-group">
+                                            <label>Tiêu đề</label>
+                                            <input
+                                                type="text"
+                                                name="timeline[{{ $day }}][title]"
+                                                class="form-control"
+                                                value="{{ old('timeline.' . $day . '.title', $daySchedule->tieude ?? 'Ngày ' . $day) }}"
+                                                placeholder="Ví dụ: Ngày {{ $day }} - Khởi hành"
+                                            >
                                         </div>
                                         <div class="form-group">
-                                            <label>Trạng thái</label>
-                                            <select name="trangthai" class="form-control">
-                                                <option value="con_cho">Còn chỗ</option>
-                                                <option value="het_cho">Hết chỗ</option>
-                                                <option value="sap_dien_ra">Sắp diễn ra</option>
-                                                <option value="hoan_thanh">Hoàn thành</option>
-                                                <option value="huy">Đã hủy</option>
-                                            </select>
+                                            <label>Nội dung lịch trình</label>
+                                            <textarea
+                                                name="timeline[{{ $day }}][itinerary]"
+                                                class="form-control"
+                                                rows="4"
+                                                placeholder="Mô tả hoạt động, điểm tham quan, bữa ăn và thời gian nghỉ ngơi"
+                                            >{{ old('timeline.' . $day . '.itinerary', $daySchedule->noidung ?? '') }}</textarea>
                                         </div>
-                                        <div class="form-group mt-2">
-                                            <button class="btn btn-success" type="submit">Thêm lịch</button>
-                                        </div>
-                                    </form>
+                                    </div>
                                 </div>
-
-                            </div>
-
+                            @endfor
                         </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8 col-sm-12">
+                    <div class="edit-tour-panel">
+                        <div class="panel-heading-clean">
+                            <h2>Thư viện ảnh</h2>
+                            <small>{{ $images->count() }} ảnh</small>
+                        </div>
+
+                        @if($images->count() > 0)
+                            <div class="image-grid">
+                                @foreach($images as $img)
+                                    <div class="image-item">
+                                        <div class="image-thumb">
+                                            <img src="{{ asset('admin/assets/images/gallery-tours/' . $img->urlanh) }}" alt="{{ $img->tenanh ?: $tour->tentour }}">
+                                        </div>
+                                        <div class="image-info">
+                                            <strong>{{ $img->tenanh ?: 'Ảnh tour' }}</strong>
+                                            <p>{{ $img->motaanh ?: 'Chưa có mô tả ảnh.' }}</p>
+                                            <form method="POST" action="{{ route('admin.tour-delete-image', ['tourId' => $tour->tourid, 'hinhId' => $img->hinhid]) }}">
+                                                @csrf
+                                                <button class="btn btn-danger btn-sm btn-block" type="submit">
+                                                    <i class="fa fa-trash"></i> Xóa ảnh
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="empty-box">Chưa có ảnh nào cho tour này.</div>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="col-md-4 col-sm-12">
+                    <div class="edit-tour-panel">
+                        <div class="panel-heading-clean">
+                            <h2>Thêm ảnh mới</h2>
+                        </div>
+                        <form method="POST" action="{{ route('admin.tour-add-image', ['tourId' => $tour->tourid]) }}" enctype="multipart/form-data">
+                            @csrf
+                            <div class="form-group">
+                                <label>Chọn ảnh</label>
+                                <input type="file" name="image" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Mô tả ảnh</label>
+                                <input type="text" name="description" class="form-control" placeholder="Ví dụ: Cầu Vàng Đà Nẵng">
+                            </div>
+                            <button class="btn btn-primary btn-block" type="submit">
+                                <i class="fa fa-upload"></i> Tải ảnh lên
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
 
+            <div class="row">
+                <div class="col-md-8 col-sm-12">
+                    <div class="edit-tour-panel">
+                        <div class="panel-heading-clean">
+                            <h2>Lịch khởi hành</h2>
+                            <small>{{ $schedules->count() }} lịch</small>
+                        </div>
+
+                        @if($schedules->count() > 0)
+                            <div class="responsive-table">
+                                <table class="table clean-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Ngày bắt đầu</th>
+                                            <th>Ngày kết thúc</th>
+                                            <th>Số chỗ còn</th>
+                                            <th>Trạng thái</th>
+                                            <th>Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($schedules as $schedule)
+                                            @php
+                                                [$statusText, $statusClass] = $scheduleStatusLabels[$schedule->trangthai] ?? [$schedule->trangthai, 'status-muted'];
+                                            @endphp
+                                            <tr>
+                                                <td>{{ $date($schedule->ngaybatdau) }}</td>
+                                                <td>{{ $date($schedule->ngayketthuc) }}</td>
+                                                <td>{{ number_format($schedule->sochocon ?? 0, 0, ',', '.') }}</td>
+                                                <td>
+                                                    <span class="status-pill {{ $statusClass }}">{{ $statusText }}</span>
+                                                    <form method="POST" action="{{ route('admin.tour-update-schedule-status', ['tourId' => $tour->tourid, 'lichId' => $schedule->lichid]) }}" style="margin-top: 8px;">
+                                                        @csrf
+                                                        <div class="input-group">
+                                                            <select name="trangthai" class="form-control input-sm">
+                                                                @foreach($scheduleStatusLabels as $value => $meta)
+                                                                    <option value="{{ $value }}" {{ $schedule->trangthai === $value ? 'selected' : '' }}>{{ $meta[0] }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                            <span class="input-group-btn">
+                                                                <button class="btn btn-primary btn-sm" type="submit">Lưu</button>
+                                                            </span>
+                                                        </div>
+                                                    </form>
+                                                </td>
+                                                <td>
+                                                    <form method="POST" action="{{ route('admin.tour-delete-schedule', ['tourId' => $tour->tourid, 'lichId' => $schedule->lichid]) }}">
+                                                        @csrf
+                                                        <button class="btn btn-danger btn-sm" type="submit">
+                                                            <i class="fa fa-trash"></i> Xóa
+                                                        </button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <div class="empty-box">Chưa có lịch khởi hành.</div>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="col-md-4 col-sm-12">
+                    <div class="edit-tour-panel">
+                        <div class="panel-heading-clean">
+                            <h2>Thêm lịch</h2>
+                        </div>
+                        <form method="POST" action="{{ route('admin.tour-add-schedule', ['tourId' => $tour->tourid]) }}">
+                            @csrf
+                            <div class="form-group">
+                                <label>Ngày bắt đầu</label>
+                                <input type="date" name="ngaybatdau" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Ngày kết thúc</label>
+                                <input type="date" name="ngayketthuc" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Số chỗ còn</label>
+                                <input type="number" name="sochocon" min="0" class="form-control" value="{{ $tour->songuoitoida }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Trạng thái</label>
+                                <select name="trangthai" class="form-control">
+                                    @foreach($scheduleStatusLabels as $value => $meta)
+                                        <option value="{{ $value }}">{{ $meta[0] }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <button class="btn btn-success btn-block" type="submit">
+                                <i class="fa fa-calendar-plus-o"></i> Thêm lịch khởi hành
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
 @include('admin.blocks.footer')

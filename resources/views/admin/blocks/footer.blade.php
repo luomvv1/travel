@@ -67,9 +67,7 @@
 
 {{-- datetimepicker  --}}
 <script src="{{ asset('admin/assets/js/jquery.datetimepicker.full.min.js') }}"></script>
-<!-- Custom Scripts By DevDien (disabled for server-rendered admin forms). Remove this include if AJAX behavior is desired. -->
-{{-- <script src="{{ asset('admin/assets/js/custom-js.js') }}?v={{ filemtime(public_path('admin/assets/js/custom-js.js')) }}"></script> --}}
-
+@stack('scripts')
 </body>
 
 </html>

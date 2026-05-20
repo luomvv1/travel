@@ -8,7 +8,7 @@
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb justify-content-center mb-20" data-aos="fade-right" data-aos-delay="200"
                     data-aos-duration="1500" data-aos-offset="50">
-                    <li class="breadcrumb-item"><a href="index.html">Trang chủ</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('home') }}">Trang chủ</a></li>
                     <li class="breadcrumb-item active">{{ $title }}</li>
                 </ol>
             </nav>

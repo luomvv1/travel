@@ -452,35 +452,67 @@ $(document).ready(function () {
      *             PAGE BOOKING             *
      * ***************************************/
     let discount = 0; // Giảm giá, có thể cập nhật khi áp dụng mã giảm giá
+    let discountType = null;
+    let discountValue = 0;
     let totalPrice = 0; // Khai báo biến totalPrice để lưu tổng giá trị
 
+    function toNumber(value) {
+        const parsed = Number(String(value ?? 0).replace(/[^\d.-]/g, ""));
+        return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    function formatVnd(value) {
+        return Math.max(0, Math.round(toNumber(value))).toLocaleString("vi-VN") + " VNĐ";
+    }
+
+    function getBookingSubtotal() {
+        const numAdults = toNumber($("#numAdults").val());
+        const numChildren = toNumber($("#numChildren").val());
+        const adultPrice = toNumber($("#numAdults").data("price-adults"));
+        const childPrice = toNumber($("#numChildren").data("price-children"));
+
+        return {
+            numAdults,
+            numChildren,
+            adultPrice,
+            childPrice,
+            subtotal: numAdults * adultPrice + numChildren * childPrice,
+        };
+    }
+
+    function getDiscountAmount(subtotal) {
+        if (!discountType || discountValue <= 0) {
+            return 0;
+        }
+
+        const amount = discountType === "phan_tram"
+            ? subtotal * (discountValue / 100)
+            : discountValue;
+
+        return Math.min(Math.max(0, amount), subtotal);
+    }
+
     function updateSummary() {
-        // Lấy số lượng người lớn và trẻ em
-        const numAdults = parseInt($("#numAdults").val());
-        const numChildren = parseInt($("#numChildren").val());
-
-        // Lấy giá từ thuộc tính data-price
-        const adultPrice = parseInt($("#numAdults").data("price-adults"));
-        const childPrice = parseInt($("#numChildren").data("price-children"));
-
-        // Tính toán tổng giá cho người lớn và trẻ em
-        const adultsTotal = numAdults * adultPrice;
-        const childrenTotal = numChildren * childPrice;
+        const booking = getBookingSubtotal();
+        discount = getDiscountAmount(booking.subtotal);
 
         // Cập nhật hiển thị số lượng và giá tiền cho từng loại
-        $(".quantity__adults").text(numAdults);
-        $(".quantity__children").text(numChildren);
+        $(".quantity__adults").text(booking.numAdults);
+        $(".quantity__children").text(booking.numChildren);
         $(".summary-item:nth-child(1) .total-price").text(
-            adultPrice.toLocaleString() + " VNĐ"
+            formatVnd(booking.adultPrice)
         );
         $(".summary-item:nth-child(2) .total-price").text(
-            childPrice.toLocaleString() + " VNĐ"
+            formatVnd(booking.childPrice)
+        );
+        $(".summary-item:nth-child(3) .total-price").text(
+            formatVnd(discount)
         );
 
         // Tính tổng giá trị
-        totalPrice = adultsTotal + childrenTotal - discount;
+        totalPrice = Math.max(0, booking.subtotal - discount);
         $(".summary-item.total-price span:last").text(
-            totalPrice.toLocaleString() + " VNĐ"
+            formatVnd(totalPrice)
         );
 
         $(".totalPrice").val(totalPrice);
@@ -489,15 +521,15 @@ $(document).ready(function () {
     // Sự kiện tăng/giảm số lượng người lớn và trẻ em
     $(".quantity-selector").on("click", ".quantity-btn", function () {
         const input = $(this).siblings("input");
-        const min = parseInt(input.attr("min"));
-        let value = parseInt(input.val());
-        const quantityAvailable = parseInt(
-            $(".quantityAvailable").text().match(/\d+/)[0]
-        ); // Lấy số chỗ còn nhận từ nội dung của .quantityAvailable
+        const min = toNumber(input.attr("min"));
+        let value = toNumber(input.val());
+        const slotsText = $(".quantityAvailable").text();
+        const slotsMatch = slotsText.match(/\d+/);
+        const quantityAvailable = slotsMatch ? toNumber(slotsMatch[0]) : 0;
 
         // Lấy tổng số lượng người lớn và trẻ em
-        const totalAdults = parseInt($("#numAdults").val());
-        const totalChildren = parseInt($("#numChildren").val());
+        const totalAdults = toNumber($("#numAdults").val());
+        const totalChildren = toNumber($("#numChildren").val());
 
         // Kiểm tra nút tăng hay giảm
         if ($(this).text() === "+") {
@@ -537,26 +569,44 @@ $(document).ready(function () {
     // Áp dụng mã giảm giá
     $(".btn-coupon").on("click", function (e) {
         e.preventDefault();
-        const couponCode = $(".order-coupon input").val();
+        const couponCode = $(".order-coupon input").val().trim();
+        const urlCheckPromo = $(this).data("url-promo");
 
-        // Giả sử mã giảm giá là "DISCOUNT10" giảm 10%
-        if (couponCode === "DISCOUNT10") {
-            discount =
-                0.1 *
-                (parseInt($("#numAdults").val()) *
-                    $("#numAdults").data("price-adults") +
-                    parseInt($("#numChildren").val()) *
-                        $("#numChildren").data("price-children"));
-            toastr.success("Áp dụng mã giảm giá thành công!");
-        } else {
-            discount = 0;
-            toastr.error("Mã giảm giá không hợp lệ!");
+        if (couponCode === "") {
+            discountType = null;
+            discountValue = 0;
+            updateSummary();
+            toastr.warning("Vui lòng nhập mã giảm giá!");
+            return;
         }
 
-        $(".summary-item:nth-child(3) .total-price").text(
-            discount.toLocaleString() + " VNĐ"
-        );
-        updateSummary();
+        $.ajax({
+            url: urlCheckPromo,
+            method: "POST",
+            data: {
+                promo: couponCode,
+                _token: $('input[name="_token"]').val(),
+            },
+            success: function (response) {
+                if (response.success) {
+                    discountType = response.loaigiam;
+                    discountValue = toNumber(response.giatri);
+                    toastr.success(response.message || "Áp dụng mã giảm giá thành công!");
+                } else {
+                    discountType = null;
+                    discountValue = 0;
+                    toastr.error(response.message || "Mã giảm giá không hợp lệ!");
+                }
+
+                updateSummary();
+            },
+            error: function () {
+                discountType = null;
+                discountValue = 0;
+                updateSummary();
+                toastr.error("Có lỗi xảy ra khi kiểm tra mã giảm giá.");
+            },
+        });
     });
 
     // Sự kiện khi thay đổi trạng thái checkbox

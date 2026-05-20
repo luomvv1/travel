@@ -7,7 +7,7 @@
                 <div class="col-xl-5 col-lg-6" data-aos="fade-up" data-aos-duration="1500" data-aos-offset="50">
                     <div class="footer-widget footer-text">
                         <div class="footer-logo mb-25">
-                            <a href="index.html"><img src="{{ asset('clients/assets/images/logos/logo.png') }}"
+                            <a href="{{ route('home') }}"><img src="{{ asset('clients/assets/images/logos/logo.png') }}"
                                     alt="Logo"></a>
                         </div>
                         <p>Chúng tôi biên soạn các hành trình riêng biệt phù hợp với sở thích của bạn, đảm bảo mọi
@@ -15,9 +15,9 @@
                             liền mạch và làm phong phú thêm những viên ngọc ẩn giấu</p>
                         <div class="social-style-one mt-15">
                             <a href="https://www.facebook.com/dienne.dev"><i class="fab fa-facebook-f"></i></a>
-                            <a href="contact.html"><i class="fab fa-youtube"></i></a>
-                            <a href="contact.html"><i class="fab fa-pinterest"></i></a>
-                            <a href="contact.html"><i class="fab fa-twitter"></i></a>
+                            <a href="{{ route('contact') }}"><i class="fab fa-youtube"></i></a>
+                            <a href="{{ route('contact') }}"><i class="fab fa-pinterest"></i></a>
+                            <a href="{{ route('contact') }}"><i class="fab fa-twitter"></i></a>
                         </div>
                     </div>
                 </div>

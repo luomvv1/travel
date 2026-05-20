@@ -32,6 +32,17 @@ class ToursManagementController extends Controller
         return view('admin.add-tours', compact('title'));
     }
 
+    public function editTour(Request $request)
+    {
+        $tourId = $request->query('tourId', $request->query('id'));
+
+        if ($tourId) {
+            return redirect()->route('admin.tour-edit-page', ['tourId' => $tourId]);
+        }
+
+        return redirect()->route('admin.tours');
+    }
+
     public function editPage($tourId)
     {
         $title = 'Chỉnh sửa Tour';

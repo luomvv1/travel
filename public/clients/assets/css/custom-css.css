@@ -45,6 +45,39 @@
     height: 100%;
 }
 
+.destination-item .destination-footer .price {
+    color: #1f2937;
+    font-weight: 700;
+}
+
+.destination-item .destination-footer .price span {
+    color: #f97316 !important;
+    font-weight: 800;
+    text-shadow: none;
+}
+
+.destinations-area.bgc-black .destination-item .destination-footer .price,
+.destination-item.style-four .destination-footer .price {
+    color: #111827;
+}
+
+.destination-item .destination-footer .read-more {
+    color: #16a34a !important;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.destination-item .destination-footer .read-more i,
+.destination-item .destination-footer .read-more span {
+    color: #16a34a !important;
+}
+
+.destination-item .destination-footer .read-more:hover,
+.destination-item .destination-footer .read-more:hover i,
+.destination-item .destination-footer .read-more:hover span {
+    color: #f97316 !important;
+}
+
 /* css tourdetail  */
 .tour-gallery .gallery-between {
     height: 100%;

@@ -41,8 +41,6 @@
                     </li>
 
                     <li><a href="{{ route('admin.booking') }}"><i class="fa fa-home"></i> Quản lý Booking</a> </li>
-                    {{--<li><a href="{{ route('admin.contact') }}"><i class="fa fa-envelope-o"></i> Liên hệ </a> </li>
-                    --}}
                     <li><a href="{{ route('admin.khuyenmai') }}"><i class="fa fa-table"></i> Quản lý Khuyến mãi</a> </li>
                 </ul>
             </div>
@@ -91,28 +89,6 @@
                     </div>
                 </li>
 
-                <li role="presentation" class="nav-item dropdown open">
-                    <a href="javascript:;" class="dropdown-toggle info-number" id="navbarDropdown1"
-                        data-toggle="dropdown" aria-expanded="false">
-                        <i class="fa fa-envelope-o"></i>
-                        <span class="badge bg-green">{{ $unreadCount ?? 0 }}</span>
-                    </a>
-                    <ul class="dropdown-menu list-unstyled msg_list" role="menu" aria-labelledby="navbarDropdown1">
-                        @if(isset($unreadContacts))
-                            @foreach ($unreadContacts->take(3) as $item)
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('admin.contact') }}">
-                                        <span>
-                                            <b><span>{{ $item->fullName }}</span></b>
-                                            <span class="time">{{ $item->phoneNumber }}</span>
-                                        </span>
-                                        <span class="message text-contact-truncate" >{{ $item->message }} </span>
-                                    </a>
-                                </li>
-                            @endforeach
-                        @endif
-                    </ul>
-                </li>
             </ul>
         </nav>
     </div>

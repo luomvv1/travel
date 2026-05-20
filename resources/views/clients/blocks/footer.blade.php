@@ -9,7 +9,7 @@
                             <a href="{{ route('home') }}"><img src="{{ asset('clients/assets/images/logos/logo.png') }}" alt="Logo"></a>
                         </div>
                         <div class="footer-map">
-                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d61349.64701146602!2d108.16542067386848!3d16.047164798501537!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x314219c792252a13%3A0xfc14e3a044436487!2sDa%20Nang%2C%20H%E1%BA%A3i%20Ch%C3%A2u%20District%2C%20Da%20Nang%2C%20Vietnam!5e0!3m2!1sen!2s!4v1729087157388!5m2!1sen!2s" 
+                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d465.21342911822546!2d106.6897469017837!3d11.08053713532671!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3174cfba40a165b9%3A0x62e7dd7bb617d5a0!2zNDQ1IMSQLiBT4buRIDMsIELDrG5oIETGsMahbmcsIEjhu5MgQ2jDrSBNaW5oLCBWaeG7h3QgTmFt!5e1!3m2!1svi!2s!4v1779114501854!5m2!1svi!2s" 
                             style="border:0; width: 100%;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                         </div>
                     </div>
@@ -56,11 +56,10 @@
                             <h5>Liên hệ</h5>
                         </div>
                         <ul class="list-style-one">
-                            <li><i class="fal fa-map-marked-alt"></i> 470 Tran Dai Nghia, Ngu Hanh Son, Da Nang</li>
+                            <li><i class="fal fa-map-marked-alt"></i>445 Đường số 3 KP1, Phường Bình Dương, Thành Phố Hồ Chí Minh</li>
                             <li><i class="fal fa-envelope"></i> <a
-                                    href="mailto:minhdien.dev@gmail.com">minhdien.dev@gmail.com</a></li>
-                            <li><i class="fal fa-phone-volume"></i> <a href="callto:+88012334588">+880 (123)
-                                    345 88</a></li>
+                                    href="mailto:minhdien.dev@gmail.com">luomvo0510@gmail.com</a></li>
+                            <li><i class="fal fa-phone-volume"></i> <a href="callto:+88012334588">+84 365 531 198</a></li>
                         </ul>
                     </div>
                 </div>

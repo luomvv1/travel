@@ -1,8 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,7 +22,6 @@ use App\Http\Controllers\clients\LoginController;
 use App\Http\Controllers\clients\LoginGoogleController;
 use App\Http\Controllers\clients\UserProfileController;
 use App\Http\Controllers\clients\ToursController;
-use App\Http\Controllers\clients\TourDetailController;
 use App\Http\Controllers\clients\MyTourController;
 use App\Http\Controllers\clients\BookingController;
 use App\Http\Controllers\clients\TourBookedController;
@@ -158,8 +155,8 @@ Route::match(['get', 'post'], '/vnpay-payment', [VnpayPaymentController::class, 
 Route::get('/vnpay-callback', [VnpayPaymentController::class, 'callback'])->name('vnpay.callback');
 
 // --- Đánh giá (Reviews) ---
-Route::post('/reviews', fn () => redirect()->back()->with('success', 'Đánh giá đã được gửi'))->name('reviews');
-Route::post('/checkBooking', fn () => response()->json(['status' => false]))->name('checkBooking');
+Route::post('/reviews', [ToursController::class, 'storeReview'])->name('reviews');
+Route::post('/checkBooking', [BookingController::class, 'checkBooking'])->name('checkBooking');
 
 
 /*
@@ -168,7 +165,7 @@ Route::post('/checkBooking', fn () => response()->json(['status' => false]))->na
 |--------------------------------------------------------------------------
 */
 Route::get('/clients/assets/{path}', function (string $path) {
-    $basePath = realpath('D:\\travela\\public\\clients\\assets');
+    $basePath = realpath(public_path('clients/assets'));
     $fullPath = realpath($basePath . '\\' . str_replace('/', '\\', $path));
 
     if (!$basePath || !$fullPath || !str_starts_with(strtolower($fullPath), strtolower($basePath)) || !is_file($fullPath)) {
@@ -178,7 +175,7 @@ Route::get('/clients/assets/{path}', function (string $path) {
 })->where('path', '.*');
 
 Route::get('/admin/assets/{path}', function (string $path) {
-    $basePath = realpath('D:\\travela\\public\\admin\\assets');
+    $basePath = realpath(public_path('admin/assets'));
     $fullPath = realpath($basePath . '\\' . str_replace('/', '\\', $path));
 
     if (!$basePath || !$fullPath || !str_starts_with(strtolower($fullPath), strtolower($basePath)) || !is_file($fullPath)) {

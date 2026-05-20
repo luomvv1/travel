@@ -236,7 +236,7 @@
                         <nav aria-label="breadcrumb">
                             <ol class="breadcrumb mb-10 aos-init aos-animate" data-aos="fade-right"
                                 data-aos-delay="200" data-aos-duration="1500" data-aos-offset="50">
-                                <li class="breadcrumb-item"><a href="index.html">Trang chủ</a></li>
+                                <li class="breadcrumb-item"><a href="{{ route('home') }}">Trang chủ</a></li>
                                 <li class="breadcrumb-item active">{{ $title }}</li>
                             </ol>
                         </nav>
@@ -505,9 +505,8 @@
                         <h5 class="widget-title">Cần trợ giúp?</h5>
                         <ul class="list-style-one">
                             <li><i class="far fa-envelope"></i> <a
-                                    href="mailto:minhdien.dev@gmail.com">minhdien.dev@gmail.com</a></li>
-                            <li><i class="far fa-phone-volume"></i> <a href="callto:+000(123)45688">+000 (123) 456
-                                    88</a></li>
+                                    href="mailto:luomvo0510@gmail.com">luomvo0510@gmail.com</a></li>
+                            <li><i class="far fa-phone-volume"></i> <a href="callto:+84365531198">+84 365 531 198</a></li>
                         </ul>
                     </div>
                     

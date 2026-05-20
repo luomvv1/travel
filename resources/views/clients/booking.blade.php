@@ -7,6 +7,19 @@
 
         <input type="hidden" name="tourId" id="tourId" value="{{ $tour->tourId }}">
 
+        @php
+            $normalizeTicketPrice = function ($value) {
+                if (is_numeric($value)) {
+                    return (int) round((float) $value);
+                }
+
+                return (int) preg_replace('/[^\d]/', '', (string) $value);
+            };
+
+            $adultTicketPrice = $normalizeTicketPrice($tour->gianguoilon ?? $tour->priceAdult ?? 0);
+            $childTicketPrice = $normalizeTicketPrice($tour->giatreem ?? $tour->priceChild ?? 0);
+        @endphp
+
         <!-- Contact Information -->
         <div class="booking-info">
             <h2 class="booking-header">Thông Tin Liên Lạc</h2>
@@ -67,7 +80,7 @@
                     <div class="input__quanlity">
                         <button type="button" class="quantity-btn">-</button>
                         <input type="number" class="quantity-input" value="1" min="1" id="numAdults" name="numAdults" 
-                               data-price-adults="{{ preg_replace('/[^0-9]/', '', $tour->gianguoilon ?? $tour->priceAdult ?? 0) }}" readonly>
+                               data-price-adults="{{ $adultTicketPrice }}" readonly>
                         <button type="button" class="quantity-btn">+</button>
                     </div>
                 </div>
@@ -77,7 +90,7 @@
                     <div class="input__quanlity">
                         <button type="button" class="quantity-btn">-</button>
                         <input type="number" class="quantity-input" value="0" min="0" id="numChildren" name="numChildren" 
-                               data-price-children="{{ preg_replace('/[^0-9]/', '', $tour->giatreem ?? $tour->priceChild ?? 0) }}" readonly>
+                               data-price-children="{{ $childTicketPrice }}" readonly>
                         <button type="button" class="quantity-btn">+</button>
                     </div>
                 </div>
@@ -174,59 +187,3 @@
 </section>
 
 @include('clients.blocks.footer')
-<script>
-    // Áp dụng mã giảm giá (Kết nối Database)
-    $(".btn-coupon").on("click", function (e) {
-        e.preventDefault();
-        const couponCode = $(".order-coupon input").val().trim();
-        const urlCheckPromo = $(this).attr("data-url-promo"); // Lấy URL từ HTML
-
-        if (couponCode === "") {
-            toastr.warning("Vui lòng nhập mã giảm giá!");
-            return;
-        }
-
-        // Tính tổng tiền vé trước khi áp dụng giảm giá
-        const adultPrice = parseInt($("#numAdults").data("price-adults")) || 0;
-        const childPrice = parseInt($("#numChildren").data("price-children")) || 0;
-        const totalBeforeDiscount = (parseInt($("#numAdults").val()) * adultPrice) + 
-                                    (parseInt($("#numChildren").val()) * childPrice);
-
-        // Gọi AJAX về backend kiểm tra mã
-        $.ajax({
-            url: urlCheckPromo,
-            method: "POST",
-            data: {
-                promo: couponCode,
-                _token: $('input[name="_token"]').val()
-            },
-            success: function(response) {
-                if (response.success) {
-                    // Tính số tiền được giảm
-                    if (response.loaigiam === 'phan_tram') {
-                        discount = totalBeforeDiscount * (parseFloat(response.giatri) / 100);
-                    } else {
-                        discount = parseFloat(response.giatri);
-                    }
-
-                    // Đảm bảo tiền giảm không vượt quá tổng tiền vé
-                    if (discount > totalBeforeDiscount) {
-                        discount = totalBeforeDiscount;
-                    }
-
-                    toastr.success(response.message || "Áp dụng mã giảm giá thành công!");
-                } else {
-                    discount = 0;
-                    toastr.error(response.message || "Mã giảm giá không hợp lệ!");
-                }
-
-                // Cập nhật lại giao diện
-                $(".summary-item:nth-child(3) .total-price").text(discount.toLocaleString() + " VNĐ");
-                updateSummary();
-            },
-            error: function() {
-                toastr.error("Có lỗi xảy ra khi kiểm tra mã giảm giá.");
-            }
-        });
-    });
-</script>

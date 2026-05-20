@@ -160,4 +160,65 @@ class ToursController extends Controller
             'title'
         ));
     }
+
+    public function storeReview(Request $request)
+    {
+        $userId = session('ndid');
+        if (!$userId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Vui lòng đăng nhập để đánh giá tour.',
+            ], 401);
+        }
+
+        $tourId = (int) $request->input('tourId');
+        $rating = (int) $request->input('rating');
+        $message = trim((string) $request->input('message'));
+
+        if ($tourId <= 0 || $rating < 1 || $rating > 5 || $message === '') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Thông tin đánh giá không hợp lệ.',
+            ], 422);
+        }
+
+        if ($this->tours->checkReviewExist($tourId, $userId)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn đã đánh giá tour này rồi.',
+            ], 409);
+        }
+
+        $booking = DB::table('dattour')
+            ->where('tourid', $tourId)
+            ->where('ndid', $userId)
+            ->whereIn('trangthai', ['da_xac_nhan', 'da_thanh_toan', 'hoan_thanh'])
+            ->orderByDesc('dtid')
+            ->first();
+
+        if (!$booking) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn cần đặt tour và được xác nhận trước khi đánh giá.',
+            ], 403);
+        }
+
+        $this->tours->createReviews([
+            'ndid' => $userId,
+            'tourid' => $tourId,
+            'dtid' => $booking->dtid,
+            'sosao' => $rating,
+            'tieude' => null,
+            'binhluan' => $message,
+            'trangthai' => 'da_duyet',
+        ]);
+
+        $reviews = $this->tours->getReviews($tourId);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Đánh giá đã được gửi thành công.',
+            'data' => view('clients.partials.reviews', compact('reviews'))->render(),
+        ]);
+    }
 }

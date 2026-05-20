@@ -10,7 +10,7 @@ class DashboardModel extends Model
     public function getSummary()
     {
         $tourWorking = DB::table('tour')
-            ->whereIn('trangthai', ['con_cho', 'het_cho'])
+            ->where('trangthai', 'hoat_dong')
             ->count();
 
         $countBooking = DB::table('dattour')->count();
@@ -38,7 +38,7 @@ class DashboardModel extends Model
 
         $areas = DB::table('tour')
             ->select('khuvuc')
-            ->whereIn('trangthai', ['con_cho', 'het_cho'])
+            ->where('trangthai', 'hoat_dong')
             ->get();
 
         foreach ($areas as $area) {
@@ -126,6 +126,22 @@ class DashboardModel extends Model
     private function regionFromArea(string $area): ?string
     {
         $normalized = $this->normalizeArea($area);
+
+        $directRegions = [
+            'b' => 'b',
+            'bac' => 'b',
+            'mien bac' => 'b',
+            't' => 't',
+            'trung' => 't',
+            'mien trung' => 't',
+            'n' => 'n',
+            'nam' => 'n',
+            'mien nam' => 'n',
+        ];
+
+        if (isset($directRegions[$normalized])) {
+            return $directRegions[$normalized];
+        }
 
         $north = [
             'ha noi', 'ha giang', 'cao bang', 'bac kan', 'tuyen quang', 'lao cai', 'dien bien', 'lai chau',
@@ -239,11 +255,11 @@ class DashboardModel extends Model
             ->orderByDesc('tt.ngaythanhtoan')
             ->select(
                 'tt.magiaodich as transaction_ref',
-                'tt.vnpay_transaction_no as vnpay_id',
+                DB::raw('NULL as vnpay_id'),
                 'tt.sotien as amount',
                 'tt.trangthai as status',
-                'tt.vnpay_bank_code as bank_code',
-                'tt.vnpay_pay_date as pay_date',
+                DB::raw('NULL as bank_code'),
+                'tt.ngaythanhtoan as pay_date',
                 'dt.dtid as booking_id'
             )
             ->take(8)
